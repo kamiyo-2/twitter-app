@@ -1,32 +1,28 @@
-import {useState } from "react";
-import { Tweet } from "@/types";
-import TweetForm from "@/components/TweetForm";
-import TweetItem from "@/components/Tweet";
-
+import Link from "next/link";
+import { useTweets } from "@/components/TweetContext";
 
 export default function Home() {
-  const [tweets, setTweets] = useState<Tweet[]>([]);
-
-  const deleteTweet = (id: number) => {
-    setTweets(tweets.filter((tweet) => tweet.id !== id));
-  };
-
-  const updateTweet = (updatedTweet: Tweet) => {
-    setTweets(tweets.map((tweet) => (tweet.id === updatedTweet.id ? updatedTweet : tweet)));
-  };
+  const { tweets } = useTweets();
 
   return (
     <div>
-      <TweetForm tweets={tweets} setTweets={setTweets} />
-      {tweets.map((tweet) => (
-        <TweetItem
-        key={tweet.id}
-        tweet={tweet}
-        onDelete={deleteTweet}
-        onUpdate={updateTweet}
-      />
-      ))}
+      <h1>Tweet List</h1>
+
+      <Link href="/create">Create a new tweet</Link>
+
+      <ul>
+        {tweets.map((tweet) => (
+          <li key={tweet.id}>
+            <Link href={`/detail/${tweet.id}`}>
+              {tweet.text}
+            </Link>
+            <Link href={`/edit/${tweet.id}`}>
+              Edit
+            </Link>
+          </li>
+        ))}
+      </ul>
+
     </div>
   );
-
-};
+}

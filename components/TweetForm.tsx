@@ -1,39 +1,54 @@
+import { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Tweet } from "@/types";
 
 interface TweetFormProps {
-  tweets: Tweet[];
-  setTweets: (tweets: Tweet[]) => void;
+  onSubmit: (tweet: Tweet) => void;
+  editingTweet?: Tweet | null;
+  onEditCancel?: () => void;
 }
 
 type TweetFormData = Omit<Tweet, "id">;
 
-const TweetForm = ({ tweets, setTweets }: TweetFormProps) => {
-  const { register, handleSubmit, setValue , formState: { errors } } = useForm<TweetFormData>();
+const TweetForm = ({ onSubmit, editingTweet, onEditCancel }: TweetFormProps) => {
+  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<TweetFormData>();
 
-  const onSubmit: SubmitHandler<TweetFormData> = (data) => {
+  useEffect(() => {
+    if (editingTweet) {
+      setValue("text", editingTweet.text);
+    } else {
+      reset();
+    }
+  }, [editingTweet, setValue, reset]);
+
+  const onSubmitHandler: SubmitHandler<TweetFormData> = (data) => {
     const timestamp = new Date().toISOString();
 
-    const newTweet: Tweet = {
-      id: Date.now(),
+    const tweet: Tweet = {
+      id: editingTweet ? editingTweet.id : Date.now(),
       ...data,
-      created_at: timestamp,
+      created_at: editingTweet ? editingTweet.created_at : timestamp,
       updated_at: timestamp,
     };
 
-    setTweets([...tweets, newTweet]);
+    onSubmit(tweet);
     setValue("text", "");
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmitHandler)}>
       <input
         {...register("text", { required: true, maxLength: 280 })}
         placeholder="What's happening?"
       />
       {errors.text && errors.text.type === "required" && <span>このフィールドは必須です</span>}
       {errors.text && errors.text.type === "maxLength" && <span>最大文字数は280文字です</span>}
-      <button type="submit">Tweet</button>
+      <button type="submit">{editingTweet ? "Update" : "Tweet"}</button>
+      {editingTweet && onEditCancel && (
+        <button type="button" onClick={onEditCancel}>
+          Cancel
+        </button>
+      )}
     </form>
   );
 };
