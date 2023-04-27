@@ -1,42 +1,28 @@
-import { useState } from "react";
-import { Tweet } from "@/types";
-import TweetForm from "@/components/TweetForm";
+import Link from "next/link";
+import { useTweets } from "@/components/TweetContext";
 
 export default function Home() {
-  const [tweets, setTweets] = useState<Tweet[]>([]);
-  const [editingTweet, setEditingTweet] = useState<Tweet | null>(null);
-
-  const deleteTweet = (id: number) => {
-    setTweets(tweets.filter((tweet) => tweet.id !== id));
-  };
-
-  const startEditing = (id: number) => {
-    const tweetToEdit = tweets.find((tweet) => tweet.id === id);
-    if (tweetToEdit) {
-      setEditingTweet(tweetToEdit);
-    }
-  };
-
-  const cancelEditing = () => {
-    setEditingTweet(null);
-  };
+  const { tweets } = useTweets();
 
   return (
     <div>
-      <TweetForm
-      tweets={tweets}
-      setTweets={setTweets}
-      editingTweet={editingTweet}
-      setEditingTweet={setEditingTweet}
-      onEditCancel={cancelEditing}
-      />
-      {tweets.map((tweet) => (
-        <div key={tweet.id}>
-        <p>{tweet.text}</p>
-        <button onClick={() => deleteTweet(tweet.id)}>Delete</button>
-        <button onClick={() => startEditing(tweet.id)}>Edit</button>
-      </div>
-      ))}
+      <h1>Tweet List</h1>
+
+      <Link href="/create">Create a new tweet</Link>
+
+      <ul>
+        {tweets.map((tweet) => (
+          <li key={tweet.id}>
+            <Link href={`/detail/${tweet.id}`}>
+              {tweet.text}
+            </Link>
+            <Link href={`/edit/${tweet.id}`}>
+              Edit
+            </Link>
+          </li>
+        ))}
+      </ul>
+
     </div>
   );
-};
+}

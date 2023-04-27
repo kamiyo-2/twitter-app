@@ -1,6 +1,14 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
+import { AppProps } from "next/app";
+import { TweetProvider } from "@/components/TweetContext";
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+import "../styles/globals.css";
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <TweetProvider>
+      <Component {...pageProps} />
+    </TweetProvider>
+  );
 }
+
+export default MyApp;
